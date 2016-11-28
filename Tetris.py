@@ -22,7 +22,10 @@ class Cell:
         self.cellBelow = None
         self.cellLeft = None
         self.cellRight = None
+        self.cellAbove = None
         self.isFloor = False
+        self.isBorderLeft = False
+        # self.isBorderRight = False
         self.isOccupied = False
         self.isSpecialUpper = False  #Cell in the first two rows, hidden from public
         self.isTopRow = False
@@ -43,6 +46,9 @@ class Cell:
     def setIsBorderLeft(self):
         self.isBorderLeft = True
     
+    # def setIsBorderRight(self):
+    #     self.isBorderRight = True
+    
     def setIsTetrominoStart(self):
         self.isTetrominoStart = True
         
@@ -57,6 +63,9 @@ class Cell:
         
     def setCellBelow(self, cell):
         self.cellBelow = cell
+        
+    def setCellAbove(self, cell):
+        self.cellAbove = cell
 
     def setCellLeft(self, cell):
         self.cellLeft = cell
@@ -67,7 +76,7 @@ class Cell:
     
     #CHECKERS
     def isOccupied(self):
-        self.isOccupied
+        return self.isOccupied
         
     def isOnRightBorder(self):
         return self.cellRight == None
@@ -87,6 +96,9 @@ class Cell:
     
     def getCellRight(self):
         return self.cellRight 
+        
+    def getCellAbove(self):
+        return self.cellAbove
         
     def getColor(self):
         self.color
@@ -112,43 +124,68 @@ class TetrominoBuilder:
         self.rotateRightBuilder = None
         self.rotateLeftBuilder = None
     
-# class Tetromino_O:            
+class TetrominoOConstants:    
+    #For each shape, there are 4 states
+    #for each state, you can move right or left and transition to a different state
+    #Shapes start at state1 in the 2 upper rows
+    #the "center" main cell is defined by the grid
+    color = bcolors.YELLOW
+    state1 = TetrominoBuilder([Cell.getCellRight, Cell.getCellBelow, Cell.getCellLeft])
+    state2 = TetrominoBuilder([Cell.getCellRight, Cell.getCellBelow, Cell.getCellLeft])
+    state3 = TetrominoBuilder([Cell.getCellRight, Cell.getCellBelow, Cell.getCellLeft])
+    state4 = TetrominoBuilder([Cell.getCellRight, Cell.getCellBelow, Cell.getCellLeft])
+    state1.rotateRightBuilder = state2
+    state1.rotateLeftBuilder = state4
+    state2.rotateRightBuilder = state1
+    state2.rotateLeftBuilder = state3
+    state3.rotateRightBuilder = state4
+    state3.rotateLeftBuilder = state3
+    state4.rotateRightBuilder = state3
+    state4.rotateLeftBuilder = state1
+    
+
+class TetrominoTConstants:    
+    #For each shape, there are 4 states
+    #for each state, you can move right or left and transition to a different state
+    #Shapes start at state1 in the 2 upper rows
+    #the "center" main cell is defined by the grid
+    color = bcolors.GREEN
+    state1 = TetrominoBuilder([Cell.getCellLeft, Cell.getCellRight, Cell.getCellAbove, Cell.getCellBelow, Cell.getCellRight])
+    state2 = TetrominoBuilder([Cell.getCellAbove, Cell.getCellBelow, Cell.getCellBelow, Cell.getCellAbove, Cell.getCellRight])
+    state3 = TetrominoBuilder([Cell.getCellLeft, Cell.getCellRight, Cell.getCellBelow, Cell.getCellAbove, Cell.getCellRight])
+    state4 = TetrominoBuilder([Cell.getCellAbove, Cell.getCellBelow, Cell.getCellBelow, Cell.getCellAbove, Cell.getCellLeft])
+    state1.rotateRightBuilder = state2
+    state1.rotateLeftBuilder = state4
+    state2.rotateRightBuilder = state3
+    state2.rotateLeftBuilder = state1
+    state3.rotateRightBuilder = state4
+    state3.rotateLeftBuilder = state2
+    state4.rotateRightBuilder = state1
+    state4.rotateLeftBuilder = state3
+       
+
 
 class Tetromino:
     
     def __init__(self):
-        
-        #For each shape, there are 4 states
-        #for each state, you can move right or left and transition to a different state
-        #Shapes start at state1 in the 2 upper rows
-        #the "center" main cell is defined by the grid
-        tetrominoOstate1 = TetrominoBuilder([Cell.getCellRight, Cell.getCellBelow, Cell.getCellLeft])
-        tetrominoOstate2 = TetrominoBuilder([Cell.getCellRight, Cell.getCellBelow, Cell.getCellLeft])
-        tetrominoOstate3 = TetrominoBuilder([Cell.getCellRight, Cell.getCellBelow, Cell.getCellLeft])
-        tetrominoOstate4 = TetrominoBuilder([Cell.getCellRight, Cell.getCellBelow, Cell.getCellLeft])
-        tetrominoOstate1.rotateRightBuilder = tetrominoOstate4
-        tetrominoOstate1.rotateLeftBuilder = tetrominoOstate2
-        tetrominoOstate2.rotateRightBuilder = tetrominoOstate1
-        tetrominoOstate2.rotateLeftBuilder = tetrominoOstate3
-        tetrominoOstate3.rotateRightBuilder = tetrominoOstate2
-        tetrominoOstate3.rotateLeftBuilder = tetrominoOstate4
-        tetrominoOstate4.rotateRightBuilder = tetrominoOstate3
-        tetrominoOstate4.rotateLeftBuilder = tetrominoOstate1
-        
-        
-        #define constants outside of this class
-        self.tetrominoShapes = ["O"]
+        self.tetrominoShapes = ["O", "T"]
         self.buildFunctions = {}
-        self.buildFunctions["O"] = tetrominoOstate1
+        self.buildFunctions["O"] = TetrominoOConstants.state1
+        self.buildFunctions["T"] = TetrominoTConstants.state1
         self.colors = {}
-        self.colors["O"] = bcolors.YELLOW
+        self.colors["O"] = TetrominoOConstants.color
+        self.colors["T"] = TetrominoTConstants.color
        
-    def sampleTetromino(self):
-        self.nextShape = self.tetrominoShapes[0]
+    # def sampleTetromino(self):
+    #     self.nextShape = self.tetrominoShapes[1]
+    
+    def getTetrominoBuilderWithShape(self, shape):
+        self.color = self.colors[shape]
+        return self.buildFunctions[shape]
         
     def getNextTetrominoBuilder(self):
-        self.color = self.colors["O"]
-        return self.buildFunctions["O"]
+        self.color = self.colors["T"]
+        return self.buildFunctions["T"]
         
 
 
@@ -167,6 +204,17 @@ class Grid:
         self.upperCorner = []
         self.tetromino = None  # color, shape, etc   
         
+    #for debugging I guess
+    def getTetrominoWithShape(self, shape):
+        self.tetromino = Tetromino()
+        self.tetrominoOriginCell = self.originCell[0]
+        nextCell = self.originCell[0]
+        self.tetrominoCells.append(nextCell)
+        self.tetrominoBuilder = self.tetromino.getTetrominoBuilderWithShape(shape)
+        for r in self.tetrominoBuilder.instructions:
+            nextCell = r(nextCell)
+            self.tetrominoCells.append(nextCell)
+        
         
     #Initialize a new tetromino
     def getNextTetromino(self):
@@ -177,10 +225,39 @@ class Grid:
         self.tetrominoBuilder = self.tetromino.getNextTetrominoBuilder()
         for r in self.tetrominoBuilder.instructions:
             nextCell = r(nextCell)
-            self.tetrominoCells.append(nextCell)
+            if nextCell is not None:
+                self.tetrominoCells.append(nextCell)
+          
+                
+    def rotateLeft(self):
+        newTetrominoCells = []
+        tetrominoRotateBuilder = self.tetrominoBuilder.rotateLeftBuilder
+        nextCell = self.originCell[0]
+        newTetrominoCells.append(nextCell)
+        for r in tetrominoRotateBuilder.instructions:
+            nextCell = r(nextCell)
+            if nextCell is not None:
+                newTetrominoCells.append(nextCell)
+        if len(newTetrominoCells) == len(self.tetrominoCells):
+            self.tetrominoCells = newTetrominoCells
+            self.tetrominoBuilder = tetrominoRotateBuilder
+            
+            
+    def rotateRight(self):
+        newTetrominoCells = []
+        tetrominoRotateBuilder = self.tetrominoBuilder.rotateRightBuilder
+        nextCell = self.originCell[0]
+        newTetrominoCells.append(nextCell)
+        for r in tetrominoRotateBuilder.instructions:
+            nextCell = r(nextCell)
+            if nextCell is not None:
+                newTetrominoCells.append(nextCell)
+        if len(newTetrominoCells) == len(self.tetrominoCells):
+            self.tetrominoCells = newTetrominoCells
+            self.tetrominoBuilder = tetrominoRotateBuilder
             
     
-    def getFullRows(self):
+    def getFullRowsLeftMostCells(self):
         fullRows = ()
         for leftMostCell in self.leftBorderCells:
             if self.isRowFull(leftMostCell):
@@ -189,11 +266,11 @@ class Grid:
     
     #Checks if row is full
     def isRowFull(self, startCell):
-        if startCell.isOccupied:
-            nextCell = startCell.getCellRight
+        if startCell.isOccupied():
+            nextCell = startCell.getCellRight()
             while nextCell is not None:
-                if nextCell.isOccupied:
-                    nextCell = nextCell.getCellRight
+                if nextCell.isOccupied():
+                    nextCell = nextCell.getCellRight()
                 else:
                     return False
             return True
@@ -204,27 +281,36 @@ class Grid:
     #I don't have to worry about the tetromino cell list, because thi action happens after the grid freezes and the list containing the tetromino cells in empty
     #for each cell in the full row, get the color and the isOccupied status of the above cell
     #if there is no above cell, then set a new free cell
+    def refreshColumn(self, startingCell):
+        aboveCell = startingCell.getCellAbove
+        currentCell = startingCell
+        while aboveCell is not None:
+            currentCell.color = aboveCell.color
+            currentCell.isOccupied = aboveCell.isOccupied
+            currentCell = aboveCell
+            aboveCell = aboveCell.getCellAbove
+        currentCell.setIsFree         
     
-    
-    #set all cells in the first row as free
-    def resetTopRow(self):
-        for cell in self.gridCells:
-            if cell.isTopRow:
-                cell.setIsOccupied = False
-    
+    def refreshGrid(self, fullRowsLeftMostCells):
+        for leftMostCell in fullRowsLeftMostCells:
+            cell = leftMostCell
+            while cell is not None:
+                refreshColumn(self, cell)
+                cell = cell.getCellRight
         
     #CHECKS IF IT"S OK TO MOVE
     def canMoveDown(self):
         for tetrominoCell in self.tetrominoCells:
             if tetrominoCell.isFloor:
                 return False
-            if tetrominoCell.cellBelow.isOccupied:
+            if tetrominoCell.cellBelow.isOccupied():
                 return False
         return True
         
     def canMoveLeft(self):
         for tetrominoCell in self.tetrominoCells:
-            if tetrominoCell.isOnLeftBorder:
+            print tetrominoCell.cellLeft
+            if tetrominoCell.isOnLeftBorder():
                 return False
             if tetrominoCell.cellLeft.isOccupied:
                 return False
@@ -232,7 +318,8 @@ class Grid:
         
     def canMoveRight(self):
         for tetrominoCell in self.tetrominoCells:
-            if tetrominoCell.isOnRightBorder:
+            if tetrominoCell.isOnRightBorder():
+                print "on border"
                 return False
             if tetrominoCell.cellRight.isOccupied:
                 return False
@@ -269,6 +356,13 @@ class Grid:
     def createEmptyGrid(self):
         allCells = {}
         tetrominoStartsX = math.ceil(self.width / 2) - 1
+        # try:
+        #     assert(tetrominoStartsX >= 0)
+        #     assert(self.width >= 5)
+        #     assert(self.height >= 3)  
+        # except:
+        #     print "Invalid grid coordinates: width must be > 4 and height > 2"
+        #     raise
         for x in range(self.width):
             for y in range(self.height):
                 newCell = Cell()
@@ -277,13 +371,15 @@ class Grid:
                 if x == 0:
                     allCells[(x, y)].setIsBorderLeft()
                     self.leftBorderCells.append(allCells[(x, y)])
+                # if x == self.width - 1:
+                #     allCells[(x, y)].setIsBorderRight()
                 if y == 0:
                     allCells[(x, y)].setIsFloor()
                 if y >= self.height-2:
                     allCells[(x, y)].setIsSpecialUpper()
                 if y >= self.height-1:
                     allCells[(x, y)].setIsTopRow()
-                if x == tetrominoStartsX and y == (self.height - 1):
+                if x == tetrominoStartsX and y == (self.height - 2):
                     allCells[(x, y)].setIsTetrominoStart()
                     self.originCell.append(allCells[(x, y)])
                 if x == 0 and y == (self.height - 1):
@@ -296,6 +392,10 @@ class Grid:
             belowCoordinates = (coordinates[0], coordinates[1] - 1)
             if belowCoordinates in allCells:
                 cell.setCellBelow(allCells[belowCoordinates])
+                
+            aboveCoordinates = (coordinates[0], coordinates[1] + 1)
+            if aboveCoordinates in allCells:
+                cell.setCellAbove(allCells[aboveCoordinates])
                 
             leftCoordinates = (coordinates[0] - 1, coordinates[1])
             if leftCoordinates in allCells:
@@ -326,11 +426,30 @@ class Grid:
     
 
 if __name__ == "__main__":
-    g = Grid(13,8)
-    g.createEmptyGrid()    
+    newGrid = Grid(6, 6)
+    newGrid.createEmptyGrid()
+    print newGrid.prettyPrintGrid()
+    newGrid.getTetrominoWithShape("T")
+    for i in range(4):
+        print i
+        print newGrid.prettyPrintGrid()
+        newGrid.rotateRight()
+        print newGrid.prettyPrintGrid()
+        newGrid.rotateRight()
+        print newGrid.prettyPrintGrid()
+        newGrid.rotateLeft()
+    print newGrid.prettyPrintGrid()
+    while newGrid.canMoveLeft():
+        newGrid.moveLeft()
+        print newGrid.prettyPrintGrid()
     
-    mg = Grid(4,4)
-    mg.createEmptyGrid()
-    tetro = Tetromino()
+    
+    
+    # g = Grid(13,8)
+    # g.createEmptyGrid()    
+    # 
+    # mg = Grid(4,4)
+    # mg.createEmptyGrid()
+    # tetro = Tetromino()
     #tetro.nextTetromino(mg.originCell)
     

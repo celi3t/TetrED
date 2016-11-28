@@ -4,14 +4,14 @@ from Tetris import *
 
 class GridTest(unittest.TestCase):
 
-    def test_create(self):
-        newGrid = Grid(3, 5)
-        self.assertEqual(5, newGrid.height)
-        self.assertEqual(3, newGrid.width)
-        newGrid.createEmptyGrid()
-        self.assertEqual(5*3, len(newGrid.gridCells))
-        self.assertEqual(5, len(newGrid.leftBorderCells))
-        self.assertEqual(0, len(newGrid.tetrominoCells))
+    # def test_create(self):
+    #     newGrid = Grid(3, 5)
+    #     self.assertEqual(5, newGrid.height)
+    #     self.assertEqual(3, newGrid.width)
+    #     newGrid.createEmptyGrid()
+    #     self.assertEqual(5*3, len(newGrid.gridCells))
+    #     self.assertEqual(5, len(newGrid.leftBorderCells))
+    #     self.assertEqual(0, len(newGrid.tetrominoCells))
 
         
     #       1 2 3 4 5  
@@ -20,9 +20,32 @@ class GridTest(unittest.TestCase):
     # 3       - -
     # 4
     # 5   
-    def test_fall1(self):
-        # testTetromino = SquareTetromino()
-        self.fallingTestHelper(width = 6, height = 6, expected = 4)
+    # def test_fall1(self):
+    #     self.fallingTestHelper(width = 6, height = 6, expected = 4)
+    #     
+        
+    def rotate_T_shape(self):
+        newGrid = Grid(6, 6)
+        newGrid.createEmptyGrid()
+        print newGrid.prettyPrintGrid()
+        newGrid.getTetrominoWithShape("T")
+        for i in range(4):
+            print i
+            print newGrid.prettyPrintGrid()
+            newGrid.rotateRight()
+            print newGrid.prettyPrintGrid()
+            newGrid.rotateRight()
+            print newGrid.prettyPrintGrid()
+            newGrid.rotateLeft()
+        print newGrid.prettyPrintGrid()
+        while newGrid.canMoveRight:
+            newGrid.moveRight()
+            print newGrid.prettyPrintGrid()
+        newGrid.rotateRight()
+        print newGrid.prettyPrintGrid()
+        
+        
+        
     
     # def test_fall2():
     #     testTetromino = SquareTetromino()
@@ -125,4 +148,22 @@ class GridTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    newGrid = Grid(6, 6)
+    newGrid.createEmptyGrid()
+    print newGrid.prettyPrintGrid()
+    newGrid.getTetrominoWithShape("T")
+    for i in range(4):
+        print i
+        print newGrid.prettyPrintGrid()
+        newGrid.rotateRight()
+        print newGrid.prettyPrintGrid()
+        newGrid.rotateRight()
+        print newGrid.prettyPrintGrid()
+        newGrid.rotateLeft()
+    print newGrid.prettyPrintGrid()
+    while newGrid.canMoveLeft:
+        newGrid.moveLeft()
+        print newGrid.prettyPrintGrid()
+    # newGrid.rotateRight()
+    # print newGrid.prettyPrintGrid()
     unittest.main()
